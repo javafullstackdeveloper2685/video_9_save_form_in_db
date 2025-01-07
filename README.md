@@ -1,172 +1,187 @@
-# POST-запросы в Java Servlets 🚀 Fetch API + JSON
+# 📝 Сохранение данных формуляра в базе данных с помощью сервлетов и Docker Compose
 
-Этот проект демонстрирует, как работать с POST-запросами в Java Servlets, используя Fetch API и JSON. Вы узнаете, как отправить данные с клиента на сервер, обработать их и вернуть ответ.
-
-## 📌 Что в этом проекте:
-- **Работа с Fetch API**: Простое и современное решение для отправки POST-запросов из JavaScript.
-- **Java Servlets**: Прием, обработка и отправка данных в формате JSON.
-- **Пошаговое руководство**: От настройки Maven WebApp до обработки запросов.
-
-## 🛠️ Используемые технологии:
-- **Java**
-- **Java Servlets**
-- **Maven**
-- **Fetch API**
-- **IntelliJ IDEA Community Edition**
-
-## 🚀 Как запустить проект:
-
-1. **Склонируйте репозиторий:**
-   ```bash
-   git clone https://github.com/javafullstackdeveloper2685/video-7-post-request-servlets.git
-   ```
-
-2. **Откройте проект в IntelliJ IDEA:**
-   - Убедитесь, что у вас установлен сервер Tomcat.
-   - Настройте Tomcat в разделе "Run Configurations".
-
-3. **Соберите и запустите проект:**
-   - Создайте артефакт WAR через Maven:
-     ```bash
-     mvn clean package
-     ```
-   - Разверните его на сервере Tomcat.
-
-4. **Откройте браузер:**
-   Перейдите по адресу:
-   ```bash
-   http://localhost:8080/index.html
-   ```
-
-5. **Протестируйте POST-запрос:**
-   - Введите данные на странице и отправьте их на сервер.
-   - Проверьте ответ в консоли браузера.
-
-## 🔍 Основной код проекта:
-
-### 1. HTML и Fetch API (client-side):
-```html
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>POST-запросы</title>
-</head>
-<body>
-    <h1>Отправка POST-запроса</h1>
-    <input type="text" id="message" placeholder="Введите сообщение">
-    <button id="send">Отправить</button>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sendBtn = document.querySelector("#send");
-            const inputMessage = document.querySelector("#message");
-            const output = document.querySelector("#output");
-
-            const sendMessage = async () => {
-                const messageText = inputMessage.value.trim();
-
-                if (!messageText) {
-                    output.innerHTML = `<p style="color: red;">Введите сообщение!</p>`;
-                    return;
-                }
-
-                try {
-                    sendBtn.disabled = true; // Блокируем кнопку
-                    const response = await fetch('/your-webapp-context/YourServlet', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ message: messageText })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Ошибка! Статус: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    output.innerHTML = `<p>Статус: ${data.status}</p><p>Сообщение: ${data.echoMessage}</p>`;
-                } catch (error) {
-                    output.innerHTML = `<p style="color: red;">Ошибка: ${error.message}</p>`;
-                } finally {
-                    sendBtn.disabled = false; // Разблокируем кнопку
-                }
-            };
-
-            sendBtn.addEventListener('click', sendMessage);
-        });
-    </script>
-
-    <div id="output"></div>
-</body>
-</html>
-```
-
-### 2. Java Servlet (server-side):
-```java
-@WebServlet("/YourServlet")
-public class YourServlet extends HttpServlet {
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        // Чтение JSON из тела запроса
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = request.getReader()) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-        }
-
-        // Преобразование JSON в объект
-        Gson gson = new Gson();
-        RequestData requestData = gson.fromJson(sb.toString(), RequestData.class);
-
-        // Создание ответа
-        ResponseData responseData = new ResponseData("OK", "Получено: " + requestData.getMessage());
-        String jsonResponse = gson.toJson(responseData);
-
-        // Отправка JSON-ответа клиенту
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(jsonResponse);
-    }
-}
-
-class RequestData {
-    private String message;
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-}
-
-class ResponseData {
-    private String status;
-    private String echoMessage;
-
-    public ResponseData(String status, String echoMessage) {
-        this.status = status;
-        this.echoMessage = echoMessage;
-    }
-}
-```
-
-## 🎯 Чему вы научитесь:
-- Как отправлять данные через POST-запрос с использованием Fetch API.
-- Как обрабатывать JSON-запросы на стороне сервера.
-- Как возвращать ответы в формате JSON.
-
-## 📈 Следующие шаги:
-- Подключение базы данных для хранения сообщений.
-- Разработка Docker Compose для развертывания приложения.
-- Создание RESTful API для взаимодействия с клиентом.
+Этот проект демонстрирует, как создать и сохранить данные из формуляра (HTML-страницы) в базу данных MySQL с
+использованием Java Servlets, JPA/Hibernate и Docker Compose. Ключевым моментом является интеграция серверной логики с
+контейнеризированной базой данных MySQL.
 
 ---
 
-💡 Если у вас есть вопросы, пишите в комментариях или создавайте Issue. Удачи в программировании! 🚀
+## 📌 Что в этом проекте:
+
+- **Отправка данных формы**: С использованием Fetch API и JSON.
+- **Сохранение в базу данных**: MySQL через JPA/Hibernate.
+- **Использование Docker Compose**: Для автоматической настройки базы данных MySQL.
+- **Минимальная конфигурация сервлета**: Простое управление HTTP-запросами.
+
+---
+
+## 🛠️ Используемые технологии:
+
+- **Java**
+- **Jakarta EE (Servlets, JPA)**
+- **Hibernate ORM**
+- **MySQL**
+- **Docker Compose**
+- **HTML, CSS, JavaScript (Fetch API)**
+
+---
+
+## 🚀 Как запустить проект:
+
+### 1. Склонируйте репозиторий:
+
+```bash
+git clone https://github.com/ваш-репозиторий.git
+cd ваш-репозиторий
+```
+
+### 2. Соберите проект с Maven:
+
+```bash
+mvn clean package
+```
+
+### 3. Запустите базу данных через Docker Compose:
+
+Убедитесь, что Docker установлен:
+
+```bash
+docker-compose up -d
+```
+
+После запуска MySQL доступен на порту ``3306``.
+
+### 4. Разверните проект на сервере Tomcat:
+
+- Переместите собранный файл WAR из target/servletsTest.war в папку webapps вашего Tomcat.
+- Убедитесь, что сервер запущен.
+
+### 5. Откройте приложение в браузере:
+
+Перейдите по адресу:
+
+```bash
+http://localhost:8080/servletsTest/index.html
+```
+## 📂 Структура проекта
+```csharp
+.
+├── src/
+│ ├── main/
+│ │ ├── java/
+│ │ │ ├── org.game/
+│ │ │ │ ├── entities/
+│ │ │ │ │ └── SForm.java # JPA Entity-класс
+│ │ │ │ ├── model/
+│ │ │ │ │ ├── RequestData.java # DTO для запроса
+│ │ │ │ │ └── ResponseData.java # DTO для ответа
+│ │ │ │ └── servlets/
+│ │ │ │ └── MainServlet.java # Главный сервлет
+│ │ ├── resources/
+│ │ │ └── META-INF/
+│ │ │ └── persistence.xml # Конфигурация JPA
+│ │ ├── webapp/
+│ │ ├── WEB-INF/
+│ │ │ └── web.xml # Настройки сервлетов
+│ │ ├── index.html # Форма отправки данных
+│ │ └── js/
+│ │ └── script.js # Fetch API для отправки формы
+├── docker-compose.yml # Docker Compose для запуска MySQL
+├── init.sql # SQL-скрипт для создания таблицы
+├── pom.xml # Конфигурация Maven
+└── README.md # Этот файл
+```
+## 📑 Пример работы
+### HTML-форма:
+```html
+<form id="messageForm">
+    <label for="name">Имя:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="message">Сообщение:</label>
+    <textarea id="message" name="message" required></textarea>
+
+    <button type="submit">Отправить</button>
+
+</form>
+<div id="output"></div>
+```
+### JavaScript (Fetch API):
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('#messageForm');
+    const output = document.querySelector('#output');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const dataToSend = Object.fromEntries(formData.entries());
+
+        fetch('/game', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataToSend),
+        })
+        .then(response => response.json())
+        .then(data => {
+            output.innerHTML = `<p>Статус: ${data.status}</p><p>Сообщение: ${data.echoMessage}</p>`;
+        })
+        .catch(error => {
+            output.innerHTML = `<p>Ошибка: ${error.message}</p>`;
+        });
+    });
+
+});
+```
+## 🛠️ Конфигурация JPA (persistence.xml):
+```xml
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+version="3.0">
+<persistence-unit name="messages-persistence-unit">
+<class>org.game.entities.SForm</class>
+<properties>
+<property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://db:3306/messages"/>
+<property name="jakarta.persistence.jdbc.user" value="user"/>
+<property name="jakarta.persistence.jdbc.password" value="password"/>
+<property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+<property name="hibernate.hbm2ddl.auto" value="update"/>
+<property name="hibernate.show_sql" value="true"/>
+</properties>
+</persistence-unit>
+</persistence>
+```
+## 📦 Конфигурация Docker Compose:
+```yaml
+version: '3.8'
+
+services:
+db:
+image: mysql:8.0
+container_name: mysql_db
+restart: always
+environment:
+MYSQL_ROOT_PASSWORD: root
+MYSQL_DATABASE: messages
+MYSQL_USER: user
+MYSQL_PASSWORD: password
+ports:
+
+- "3306:3306"
+  volumes:
+- db_data:/var/lib/mysql
+- ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+db_data:
+```
+## 💡 Удачи в программировании! Если у вас есть вопросы, оставляйте комментарии. 🚀
