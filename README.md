@@ -31,7 +31,7 @@
 ### 1. Склонируйте репозиторий:
 
 ```bash
-git clone https://github.com/ваш-репозиторий.git
+git clone https://github.com/javafullstackdeveloper2685/video_9_save_form_in_db.git
 cd ваш-репозиторий
 ```
 
